@@ -75,7 +75,9 @@ class AuthorisedForActionSpec extends UnitSpec with BeforeAndAfterEachTestData w
 
   def lowAssuranceUser: Authority = {
     Authority(
-      s"/auth/oid/jdensmore",
+      "/auth/oid/jdensmore",
+      "/auth/oid/jdensmore/enrolments",
+      "http:foo.service/user-details",
       Accounts(sa = Some(SaAccount(s"/sa/individual/AB123456C", SaUtr("AB123456C")))),
       None,
       None,
@@ -94,6 +96,8 @@ class AuthorisedForActionSpec extends UnitSpec with BeforeAndAfterEachTestData w
   def saAuthority(id: String, utr: String): Authority =
     Authority(
       s"/auth/oid/$id",
+      s"/auth/oid/$id/enrolments",
+      "http:foo.service/user-details",
       Accounts(sa = Some(SaAccount(s"/sa/individual/$utr", SaUtr(utr)))),
       None,
       None,

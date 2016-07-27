@@ -27,6 +27,8 @@ class AuthoritySpec extends UnitSpec with WithFakeApplication {
     "round trip correctly to and from JSON" in {
 
       val authority = Authority("/auth/some-oid",
+        "/auth/some-oid/enrolments",
+        "http://foo.service/user-details",
         Accounts(paye = Some(PayeAccount("/paye/AA000002B", Nino("AA000002B"))), iht = Some(IhtAccount("/iht/AA000002B", Nino("AA000002B")))),
         None,
         None,

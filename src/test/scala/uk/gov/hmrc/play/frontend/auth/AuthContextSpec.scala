@@ -47,7 +47,9 @@ class AuthContextSpec extends UnitSpec {
       loggedInAt = loggedInAt,
       previouslyLoggedInAt = previouslyLoggedInAt,
       credentialStrength = CredentialStrength.Strong,
-      confidenceLevel = ConfidenceLevel.L500
+      confidenceLevel = ConfidenceLevel.L500,
+      enrolments = "/auth/oid/1234567890/enrolments",
+      userDetailsLink = "foo.service/user-details"
     )
   }
 
@@ -67,14 +69,16 @@ class AuthContextSpec extends UnitSpec {
     previouslyLoggedInAt = AuthData.previouslyLoggedInAt,
     governmentGatewayToken = SessionData.governmentGatewayToken,
     credentialStrength = CredentialStrength.Strong,
-    confidenceLevel = ConfidenceLevel.L500
+    confidenceLevel = ConfidenceLevel.L500,
+    "foo.service/user-details"
   )
 
   object ExpectationsWhenNotDelegating {
 
     val principal = Principal(
       name = SessionData.name,
-      accounts = AuthData.accounts
+      accounts = AuthData.accounts,
+      Some("/auth/oid/1234567890/enrolments")
     )
 
     val expectedAuthContext = AuthContext(expectedLoggedInUser, principal, None)
@@ -84,7 +88,8 @@ class AuthContextSpec extends UnitSpec {
 
     val principal = Principal(
       name = Some(DelegationServiceData.principalName),
-      accounts = DelegationServiceData.principalAccounts
+      accounts = DelegationServiceData.principalAccounts,
+      None
     )
 
     val attorney = Attorney(DelegationServiceData.attorneyName, DelegationServiceData.returnLink)
@@ -111,8 +116,8 @@ class AuthContextSpec extends UnitSpec {
 
   "The isDelegating flag" should {
 
-    val loggedInUser = LoggedInUser("uid", None, None, None, CredentialStrength.Strong, ConfidenceLevel.L500)
-    val principal = Principal(Some("Bob P"), Accounts())
+    val loggedInUser = LoggedInUser("uid", None, None, None, CredentialStrength.Strong, ConfidenceLevel.L500, "foo")
+    val principal = Principal(Some("Bob P"), Accounts(), None)
 
     "be true if the attorney is defined" in {
       AuthContext(loggedInUser, principal, Some(Attorney("Dave A", Link("A", "A")))).isDelegating shouldBe true

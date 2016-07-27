@@ -32,7 +32,8 @@ class LoggedInUserSpec extends OidConversionSpec[LoggedInUser] with UnitSpec {
     previouslyLoggedInAt = None,
     governmentGatewayToken = None,
     credentialStrength = CredentialStrength.Strong,
-    confidenceLevel = ConfidenceLevel.L500
+    confidenceLevel = ConfidenceLevel.L500,
+    "http://foo.service/user-details"
   )
 
   override protected def oid(user: LoggedInUser): String = user.oid

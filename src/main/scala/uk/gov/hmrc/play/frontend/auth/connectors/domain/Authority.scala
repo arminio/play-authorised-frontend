@@ -108,6 +108,8 @@ object CredentialStrength {
 }
 
 case class Authority(uri: String,
+                     enrolments: String,
+                     userDetailsLink: String,
                      accounts: Accounts,
                      loggedInAt: Option[DateTime],
                      previouslyLoggedInAt: Option[DateTime],
@@ -177,7 +179,9 @@ object AgentAssistant extends AgentRole {
 }
 
 
-case class AgentAccount(link: String, agentCode: AgentCode, agentUserId: AgentUserId,
+case class AgentAccount(link: String,
+                        agentCode: AgentCode,
+                        agentUserId: AgentUserId,
                         agentUserRole: AgentRole,
                         payeReference: Option[PayeAgentReference],
                         agentBusinessUtr: Option[AgentBusinessUtr] = None) extends Account
@@ -187,6 +191,7 @@ object AgentAccount {
 }
 
 
+@deprecated("please use enrolments retrieved by retrieving the 'enrolments' affordance on the authority")
 case class Accounts(paye: Option[PayeAccount] = None,
                     sa: Option[SaAccount] = None,
                     ct: Option[CtAccount] = None,

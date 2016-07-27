@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.play.frontend.auth
 
+import java.net.URL
+
 import play.api.Logger
+import play.api.libs.json.JsValue
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.Authority
 import uk.gov.hmrc.play.frontend.auth.connectors.{AuthConnector, DelegationConnector}
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.play.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
@@ -29,6 +32,15 @@ private[auth] trait AuthContextService {
   self: DelegationDataProvider =>
 
   protected def authConnector: AuthConnector
+
+  protected def enrolment(authContext: AuthContext, name: String)(implicit hc: HeaderCarrier): Future[JsValue] =
+    (for {
+      enrolmentsUrl <- authContext.principal.enrolments
+      url = new URL(enrolmentsUrl)
+    } yield authConnector.getJson(url)).getOrElse(Future.failed(new NotFoundException("enrolments url missing")))
+
+  protected def userDetails(authContext: AuthContext)(implicit hc: HeaderCarrier): Future[JsValue] =
+      authConnector.getJson(new URL(authContext.user.userDetails))
 
   private[auth] def currentAuthContext(sessionData: UserSessionData)(implicit hc: HeaderCarrier): Future[Option[AuthContext]] = {
 

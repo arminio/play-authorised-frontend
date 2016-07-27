@@ -29,14 +29,16 @@ trait Delegator {
 
   protected def delegationConnector: DelegationConnector
 
-  def startDelegationAndRedirect(delegationContext: DelegationContext, redirectUrl: String)(implicit hc: HeaderCarrier, authContext: AuthContext, request: RequestHeader): Future[Result] = {
+  def startDelegationAndRedirect(delegationContext: DelegationContext, redirectUrl: String)
+                                (implicit hc: HeaderCarrier, authContext: AuthContext, request: RequestHeader): Future[Result] = {
 
     delegationConnector.startDelegation(authContext.user.oid, delegationContext).map { _ =>
       Results.SeeOther(redirectUrl).addingToSession(UserSessionData.DelegationStateSessionKey -> DelegationOn.toString)
     }
   }
 
-  def endDelegation(result: Result)(implicit hc: HeaderCarrier, authContext: AuthContext, request: RequestHeader): Future[Result] = {
+  def endDelegation(result: Result)
+                   (implicit hc: HeaderCarrier, authContext: AuthContext, request: RequestHeader): Future[Result] = {
     delegationConnector.endDelegation(authContext.user.oid).map { _ =>
       result.removingFromSession(UserSessionData.DelegationStateSessionKey)
     }

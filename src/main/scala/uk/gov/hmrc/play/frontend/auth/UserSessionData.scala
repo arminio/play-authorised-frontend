@@ -19,7 +19,11 @@ package uk.gov.hmrc.play.frontend.auth
 import play.api.mvc.Session
 import uk.gov.hmrc.play.http.SessionKeys
 
-case class UserSessionData(userId: Option[String], governmentGatewayToken: Option[String], name: Option[String], delegationState: DelegationState) {
+case class UserSessionData(userId: Option[String],
+                           @deprecated("find in userDetails") governmentGatewayToken: Option[String],
+                           @deprecated("find in userDetails") name: Option[String],
+                           delegationState: DelegationState) {
+  @deprecated
   val userCredentials = UserCredentials(userId, governmentGatewayToken)
 }
 

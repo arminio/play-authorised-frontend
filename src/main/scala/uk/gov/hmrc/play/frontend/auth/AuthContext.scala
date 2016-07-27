@@ -25,13 +25,14 @@ case class AuthContext(user: LoggedInUser, principal: Principal, attorney: Optio
 
 object AuthContext {
 
-  def apply(authority: Authority, governmentGatewayToken: Option[String] = None,
+  def apply(authority: Authority,
+            governmentGatewayToken: Option[String] = None,
             nameFromSession: Option[String] = None,
             delegationData: Option[DelegationData] = None): AuthContext = {
 
-    val (principalName: Option[String], accounts: Accounts, attorney: Option[Attorney]) = delegationData match {
-      case Some(delegation) => (Some(delegation.principalName), delegation.accounts, Some(delegation.attorney))
-      case None => (nameFromSession, authority.accounts, None)
+    val (principalName: Option[String], accounts: Accounts, enrolments: Option[String], attorney: Option[Attorney]) = delegationData match {
+      case Some(delegation) => (Some(delegation.principalName), delegation.accounts, None,                       Some(delegation.attorney))
+      case None =>             (nameFromSession,                authority.accounts,  Some(authority.enrolments), None)
     }
 
     AuthContext(
@@ -41,31 +42,40 @@ object AuthContext {
         previouslyLoggedInAt = authority.previouslyLoggedInAt,
         governmentGatewayToken = governmentGatewayToken,
         credentialStrength = authority.credentialStrength,
-        confidenceLevel = authority.confidenceLevel
+        confidenceLevel = authority.confidenceLevel,
+        userDetails = authority.userDetailsLink
       ),
       principal = Principal(
         name = principalName,
-        accounts = accounts
+        accounts = accounts,
+        enrolments = enrolments
       ),
       attorney = attorney
     )
   }
 }
 
-case class LoggedInUser(userId: String,loggedInAt: Option[DateTime],
+case class LoggedInUser(userId: String,
+                        loggedInAt: Option[DateTime],
                         previouslyLoggedInAt: Option[DateTime],
-                        governmentGatewayToken: Option[String],
+                        @deprecated("find in userDetails") governmentGatewayToken: Option[String],
                         credentialStrength: CredentialStrength,
-                        confidenceLevel: ConfidenceLevel) {
+                        confidenceLevel: ConfidenceLevel,
+                        userDetails: String) {
+
+  @deprecated("use userId")
   lazy val oid: String = OidExtractor.userIdToOid(userId)
 }
 
-case class Principal(name: Option[String], accounts: Accounts)
+case class Principal(@deprecated("not reliable") name: Option[String], // in the future 'name' will only be populated if principal is an agent's client
+                     accounts: Accounts,
+                     enrolments: Option[String])                       // enrolments are only available for the currently logged in user - not if principal is an agent client (but may become so)
 
 case class Attorney(name: String, returnLink: Link)
 
 case class Link(url: String, text: String)
 
+@deprecated("Picking data out of a URI couples the uri structure to this library and all users of it")
 object OidExtractor {
   def userIdToOid(userId: String): String = userId.substring(userId.lastIndexOf("/") + 1)
 }

@@ -91,8 +91,9 @@ class AuthContextServiceWithDelegationEnabledSpec extends UnitSpec with MockitoS
             userAtKeyboard.previouslyLoggedInAt,
             Some(session.governmentGatewayToken),
             CredentialStrength.Strong,
-            ConfidenceLevel.L500),
-          principal = Principal(Some(delegationData.principalName), delegationData.accounts),
+            ConfidenceLevel.L500,
+            "http://foo.service/user-details"),
+          principal = Principal(Some(delegationData.principalName), delegationData.accounts, None),
           attorney = Some(Attorney(delegationData.attorneyName, delegationData.link))
         ))
     }
@@ -110,6 +111,10 @@ class AuthContextServiceWithDelegationEnabledSpec extends UnitSpec with MockitoS
 
       val authContext = await(service.currentAuthContext(sessionData))
 
+      
+      // Some(AuthContext(LoggedInUser(/auth/oid/1234567890,Some(2015-11-22T11:33:15.234Z),Some(2014-08-03T09:25:44.342Z),None,Strong,500,foo.service/user-details),Principal(Some(Bill Principal),Accounts(None,None,Some(CtAccount(/some/path,1234554321)),None,None,None,None,None,None,None,None,None,None,None,None,None),None),Some(Attorney(Brian Agent,Link(/some/url,Back to your dashboard)))))
+      // Some(AuthContext(LoggedInUser(/auth/oid/1234567890,Some(2015-11-22T11:33:15.234Z),Some(2014-08-03T09:25:44.342Z),None,Strong,500,http://foo.service/user-details),Principal(Some(Bill Principal),Accounts(None,None,Some(CtAccount(/some/path,1234554321)),None,None,None,None,None,None,None,None,None,None,None,None,None),None),Some(Attorney(Brian Agent,Link(/some/url,Back to your dashboard)))))
+      
       authContext shouldBe Some(
         AuthContext(
           user = LoggedInUser(
@@ -118,8 +123,9 @@ class AuthContextServiceWithDelegationEnabledSpec extends UnitSpec with MockitoS
             userAtKeyboard.previouslyLoggedInAt,
             None,
             CredentialStrength.Strong,
-            ConfidenceLevel.L500),
-          principal = Principal(Some(delegationData.principalName), delegationData.accounts),
+            ConfidenceLevel.L500,
+            "http://foo.service/user-details"),
+          principal = Principal(Some(delegationData.principalName), delegationData.accounts, None),
           attorney = Some(Attorney(delegationData.attorneyName, delegationData.link))
         ))
     }
@@ -150,8 +156,9 @@ class AuthContextServiceWithDelegationEnabledSpec extends UnitSpec with MockitoS
             userAtKeyboard.previouslyLoggedInAt,
             Some(session.governmentGatewayToken),
             CredentialStrength.Strong,
-            ConfidenceLevel.L500),
-          principal = Principal(Some(session.name), userAtKeyboard.accounts),
+            ConfidenceLevel.L500,
+            "http://foo.service/user-details"),
+          principal = Principal(Some(session.name), userAtKeyboard.accounts, Some("http://bar.service/user 1234/enrolments")),
           attorney = None
         ))
     }
@@ -177,8 +184,9 @@ class AuthContextServiceWithDelegationEnabledSpec extends UnitSpec with MockitoS
             userAtKeyboard.previouslyLoggedInAt,
             None,
             CredentialStrength.Strong,
-            ConfidenceLevel.L500),
-          principal = Principal(Some(session.name), userAtKeyboard.accounts),
+            ConfidenceLevel.L500,
+            "http://foo.service/user-details"),
+          principal = Principal(Some(session.name), userAtKeyboard.accounts, Some("http://bar.service/user 1234/enrolments")),
           attorney = None
         ))
     }
@@ -204,8 +212,9 @@ class AuthContextServiceWithDelegationEnabledSpec extends UnitSpec with MockitoS
             userAtKeyboard.previouslyLoggedInAt,
             Some(session.governmentGatewayToken),
             CredentialStrength.Strong,
-            ConfidenceLevel.L500),
-          principal = Principal(None, userAtKeyboard.accounts),
+            ConfidenceLevel.L500,
+            "http://foo.service/user-details"),
+          principal = Principal(None, userAtKeyboard.accounts, Some("http://bar.service/user 1234/enrolments")),
           attorney = None
         ))
     }
@@ -312,8 +321,9 @@ class AuthContextServiceDisallowingDelegationSpec extends UnitSpec with MockitoS
             userAtKeyboard.previouslyLoggedInAt,
             Some(session.governmentGatewayToken),
             CredentialStrength.Strong,
-            ConfidenceLevel.L500),
-          principal = Principal(Some(session.name), userAtKeyboard.accounts),
+            ConfidenceLevel.L500,
+            "http://foo.service/user-details"),
+          principal = Principal(Some(session.name), userAtKeyboard.accounts, Some("http://bar.service/user 1234/enrolments")),
           attorney = None
         ))
     }
@@ -339,8 +349,9 @@ class AuthContextServiceDisallowingDelegationSpec extends UnitSpec with MockitoS
             userAtKeyboard.previouslyLoggedInAt,
             None,
             CredentialStrength.Strong,
-            ConfidenceLevel.L500),
-          principal = Principal(Some(session.name), userAtKeyboard.accounts),
+            ConfidenceLevel.L500,
+            "http://foo.service/user-details"),
+          principal = Principal(Some(session.name), userAtKeyboard.accounts, Some("http://bar.service/user 1234/enrolments")),
           attorney = None
         ))
     }
@@ -366,8 +377,9 @@ class AuthContextServiceDisallowingDelegationSpec extends UnitSpec with MockitoS
             userAtKeyboard.previouslyLoggedInAt,
             Some(session.governmentGatewayToken),
             CredentialStrength.Strong,
-            ConfidenceLevel.L500),
-          principal = Principal(None, userAtKeyboard.accounts),
+            ConfidenceLevel.L500,
+            "http://foo.service/user-details"),
+          principal = Principal(None, userAtKeyboard.accounts, Some("http://bar.service/user 1234/enrolments")),
           attorney = None
         ))
     }
@@ -429,7 +441,9 @@ trait AuthContextServiceTestCase extends MockitoSugar {
       loggedInAt = loggedInAt,
       previouslyLoggedInAt = previouslyLoggedInAt,
       credentialStrength = CredentialStrength.Strong,
-      confidenceLevel = ConfidenceLevel.L500
+      confidenceLevel = ConfidenceLevel.L500,
+      userDetailsLink = "http://foo.service/user-details",
+      enrolments = "http://bar.service/user 1234/enrolments"
     )
   }
 
